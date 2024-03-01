@@ -84,9 +84,10 @@ const app = {
 };
 const fallback = { path: "*", Component: _404?.default || Fragment };
 
-export const routes: RouteObject[] = [
+const routes: RouteObject[] = [
   { ...app, children: [...regularRoutes, fallback] },
 ];
+
 export const Routes = () => (
   <RouterProvider router={createHashRouter(routes)} />
 );
