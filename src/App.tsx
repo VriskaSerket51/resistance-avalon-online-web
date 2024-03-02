@@ -1,4 +1,7 @@
+import "@/styles/Fonts.css";
+
 import { CssBaseline, ThemeProvider } from "@mui/material";
+
 import { Routes } from "@/routes";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { darkTheme, lightTheme } from "@/constants/Theme";

@@ -1,18 +1,23 @@
 import { create } from "zustand";
 
-import * as Storage from "@/utils/Storage";
+export type ColorScheme = "light" | "dark";
 
 type ColorSchemeProps = {
-  scheme: Storage.ColorScheme;
+  scheme: ColorScheme;
 };
 
+const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+darkModeMediaQuery.addEventListener("change", (e) => {
+  changeColorScheme(e.matches ? "dark" : "light");
+});
+
 export const useColorScheme = create<ColorSchemeProps>(() => ({
-  scheme: Storage.getColorScheme(),
+  scheme: darkModeMediaQuery.matches ? "dark" : "light",
 }));
 
-export function changeColorScheme(scheme: Storage.ColorScheme) {
+export function changeColorScheme(scheme: ColorScheme) {
   useColorScheme.setState({
     scheme: scheme,
   });
-  Storage.setColorScheme(scheme);
 }

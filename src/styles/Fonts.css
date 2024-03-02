@@ -1,0 +1,5 @@
+@font-face {
+  font-family: "NotoSansKR";
+  /* font-display: swap; */
+  src: url(/src/assets/fonts/NotoSansKR-Regular.otf) format("opentype");
+}

@@ -9,15 +9,23 @@ export function getDeviceUuid() {
   return deviceUUid;
 }
 
-export type ColorScheme = "light" | "dark";
-
-export function getColorScheme() {
-  if (localStorage.getItem("color-scheme") == "dark") {
-    return "dark";
-  }
-  return "light";
+export function getReconnectToken() {
+  return localStorage.getItem("reconnect-token");
 }
 
-export function setColorScheme(scheme: ColorScheme) {
-  localStorage.setItem("color-scheme", scheme);
+export function setReconnectToken(reconnectToken: string) {
+  localStorage.setItem("reconnect-token", reconnectToken);
+}
+
+export function getNickname() {
+  let nickname = localStorage.getItem("nickname");
+  if (!nickname) {
+    nickname = `원탁의 기사 ${Math.round(Math.random() * 1000)}`;
+    setNickname(nickname);
+  }
+  return nickname;
+}
+
+export function setNickname(nickname: string) {
+  localStorage.setItem("nickname", nickname);
 }

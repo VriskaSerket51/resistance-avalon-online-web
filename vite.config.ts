@@ -5,5 +5,5 @@ import generouted from "@generouted/react-router/plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tsconfigPaths(), generouted()],
+  plugins: [react({ tsDecorators: true }), tsconfigPaths(), generouted()],
 });
