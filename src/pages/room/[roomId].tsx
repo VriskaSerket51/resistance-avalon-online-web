@@ -30,6 +30,7 @@ import { SubmitButton } from "@/components/StyledButton";
 import {
   ChooseMemberRequest,
   GameEvent,
+  GameTerminatedEvent,
   KickPlayerRequest,
   KillMerlinRequest,
   QuestRequest,
@@ -158,6 +159,13 @@ function Room() {
 
   useEffect(() => {
     if (room) {
+      room.onMessage(
+        GameEvent.GameTerminatedEvent,
+        (event: GameTerminatedEvent) => {
+          Popup.stopLoading();
+          Popup.openConfirmDialog(DialogTitle.Alert, event.message);
+        }
+      );
       room.onMessage(GameEvent.StartGameResponse, () => {
         Popup.stopLoading();
       });
