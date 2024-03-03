@@ -3,7 +3,7 @@ import * as Colyseus from "colyseus.js";
 import { ClientOption, GameRoomOption, RoomMetadata } from "@/lib/types";
 import { GameRoomState } from "@/lib/schemas/GameRoomState";
 
-const client = new Colyseus.Client(`ws://${location.hostname}:2567`);
+const client = new Colyseus.Client(import.meta.env.VITE_HOST);
 const roomName = "game_room";
 
 export function getAvailableRooms() {
