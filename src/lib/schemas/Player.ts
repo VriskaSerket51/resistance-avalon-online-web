@@ -12,6 +12,7 @@ export class Player extends Schema {
     @type("string") public id!: string;
     @type("boolean") public isMaster!: boolean;
     @type("boolean") public isConnected!: boolean;
+    @type("boolean") public isKicked!: boolean;
     @type("string") public name!: string;
     @type("number") public index!: number;
 }
