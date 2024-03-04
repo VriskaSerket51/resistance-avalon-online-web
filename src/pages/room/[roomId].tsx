@@ -16,7 +16,7 @@ import {
   Select,
   Stack,
 } from "@mui/material";
-import { Link as LinkIcon } from "@mui/icons-material";
+import { Share as ShareIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useState } from "react";
 
 import Popup from "@/components/popup";
@@ -255,12 +255,24 @@ function Room() {
           <Text variant="h4">{state.title}</Text>
           <Button
             variant="contained"
-            startIcon={<LinkIcon fontSize="large" />}
+            startIcon={<ShareIcon fontSize="large" />}
             onClick={() => {
-              navigator.clipboard.writeText(location.href);
+              try {
+                navigator.share({
+                  title: "레지스탕스 아발론 온라인",
+                  text: "레지스탕스 아발론 온라인에 초대되셨습니다!",
+                  url: location.href,
+                });
+              } catch (error) {
+                navigator.clipboard.writeText(location.href);
+                Popup.openConfirmDialog(
+                  DialogTitle.Info,
+                  "클립보드에 복사되었습니다!"
+                );
+              }
             }}
           >
-            <Text>링크 복사</Text>
+            <Text>공유하기</Text>
           </Button>
         </Box>
       )}
