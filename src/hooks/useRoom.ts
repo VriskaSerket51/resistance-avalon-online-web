@@ -18,8 +18,8 @@ export function enterRoom(room: Room<GameRoomState>) {
 }
 
 export function leaveRoom() {
+  Storage.setReconnectToken("");
   useRoom.setState({
     room: undefined,
   });
-  Storage.setReconnectToken("");
 }
