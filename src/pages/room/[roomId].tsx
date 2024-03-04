@@ -65,19 +65,13 @@ export default function RoomScreen() {
             leaveRoom();
           }
         );
-      } else if (code == ExitCode.PasswordWrong) {
-        Popup.openConfirmDialog(
-          DialogTitle.Info,
-          "비밀번호가 틀렸습니다.",
-          () => {
-            navigate("/");
-            leaveRoom();
-          }
-        );
       } else if (code < 4000) {
-        Popup.openConfirmDialog(
+        Popup.openYesNoDialog(
           DialogTitle.Info,
-          "서버와 통신에 실패했습니다.",
+          "서버와 통신에 실패했습니다.\n다시 접속하시겠습니까?",
+          () => {
+            location.reload();
+          },
           () => {
             navigate("/");
             leaveRoom();
@@ -131,7 +125,7 @@ export default function RoomScreen() {
   }, [roomId, navigate, searchParams, onDisconnected]);
 
   useEffect(() => {
-    if (!room) {
+    if (!room || !room.connection.isOpen) {
       joinRoomAsync();
     } else {
       room.onLeave(onDisconnected);
@@ -236,7 +230,6 @@ function Room() {
   if (!room || !state) {
     return <Spinner text="방에 접속하는 중입니다..." />;
   }
-
   const me = state.players.get(room.sessionId);
   if (!me) {
     return null;
