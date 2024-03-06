@@ -631,12 +631,22 @@ function ChatWindow() {
   const { chats } = useChatWindow();
   const { room } = useRoom();
   const inputRef = useRef<TextFieldProps>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scroll = scrollRef.current;
+    if (scroll) {
+      scroll.scrollTop = scroll.scrollHeight;
+    }
+  }, [chats]);
 
   return (
     <Box
       component="form"
       sx={{
-        maxHeight: "100%",
+        display: "flex",
+        flexDirection: "column",
+        height: "50vh",
       }}
       onSubmit={(e) => {
         e.preventDefault();
@@ -654,16 +664,25 @@ function ChatWindow() {
           text: chat,
           datetime: new Date().getTime(),
         };
+        console.log(request);
         room.send(GameEvent.GameChatRequest, request);
       }}
     >
-      {chats
-        .sort((a, b) => a.datetime - b.datetime)
-        .map((chat, i) => (
-          <Text key={i}>
-            {chat.name}: {chat.text}
-          </Text>
-        ))}
+      <Box
+        ref={scrollRef}
+        sx={{
+          overflowY: "scroll",
+          height: "calc(100% - 40px)",
+        }}
+      >
+        {chats
+          .sort((a, b) => a.datetime - b.datetime)
+          .map((chat, i) => (
+            <Text key={i} sx={{ p: "4px" }}>
+              {chat.name}: {chat.text}
+            </Text>
+          ))}
+      </Box>
       <Box display="flex" gap={1} mt={1}>
         <TextField inputRef={inputRef} size="small" fullWidth name="chat" />
         <SubmitButton backgroundColor="primary.main">전송</SubmitButton>
