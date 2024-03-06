@@ -47,7 +47,7 @@ export function DialogComponent(props: DialogComponentProps) {
         }
       }}
     >
-      <DialogTitle>
+      <DialogTitle display="flex" alignItems="center">
         {title}
         {onCancel && (
           <IconButton
