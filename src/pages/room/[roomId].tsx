@@ -155,7 +155,7 @@ function Room() {
   const { count, addCount, open, close } = useChatWindow();
   const [init, setInit] = useState(false);
   const [state, setState] = useState<GameRoomState | null>(null);
-  const [quest, setQuest] = useState(true);
+  const [quest, setQuest] = useState(false);
   const [roleSelect, setRoleSelect] = useState<RoleSelectEvent>();
   const navigate = useNavigate();
 
