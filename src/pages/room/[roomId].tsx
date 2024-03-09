@@ -53,6 +53,7 @@ import { GameRoomState } from "@/lib/schemas/GameRoomState";
 import Spinner from "@/components/Spinner";
 import { useSearchParams } from "react-router-dom";
 import { addChat, useChatWindow } from "@/hooks/useChatWindow";
+import { countFreq } from "@/utils";
 
 export default function RoomScreen() {
   const { room } = useRoom();
@@ -365,7 +366,7 @@ function Room() {
               alignItems="center"
             >
               <Text variant="h5">원정대 해산</Text>
-              <Text variant="h5" color="error.main">
+              <Text variant="h5" color="warning.main">
                 연속 {state.noQuestCount} 회
               </Text>
             </Grid>
@@ -373,7 +374,12 @@ function Room() {
         )}
 
         {state.gameState != GameState.Wait && (
-          <Text variant="h5">직업 목록: {state.roles.join(", ")}</Text>
+          <Text variant="h5">
+            직업 목록:{" "}
+            {countFreq([...state.roles.values()])
+              .map(([name, count]) => (count > 1 ? `${name} ${count} 명` : name))
+              .join(", ")}
+          </Text>
         )}
 
         {state.gameState != GameState.Wait && roleSelect && (
@@ -551,17 +557,19 @@ function Room() {
 
         <Box display="flex" justifyContent="space-between">
           <Text variant="h5">플레이어 목록 ({state.players.size} / 10)</Text>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              room.leave();
-              navigate("/");
-              leaveRoom();
-            }}
-          >
-            나가기
-          </Button>
+          {state.gameState == GameState.Wait && (
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => {
+                room.leave();
+                navigate("/");
+                leaveRoom();
+              }}
+            >
+              나가기
+            </Button>
+          )}
         </Box>
         <Stack spacing={1}>
           {players
