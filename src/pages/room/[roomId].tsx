@@ -23,7 +23,7 @@ import { Chat as ChatIcon, Share as ShareIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Popup from "@/components/popup";
-import { enterRoom, leaveRoom, useRoom } from "@/hooks/useRoom";
+import { useRoom } from "@/hooks/useRoom";
 import { useNavigate, useParams } from "@/router";
 import * as Server from "@/utils/Server";
 import * as Storage from "@/utils/Storage";
@@ -56,7 +56,7 @@ import { addChat, useChatWindow } from "@/hooks/useChatWindow";
 import { countFreq } from "@/utils";
 
 export default function RoomScreen() {
-  const { room } = useRoom();
+  const { room, enter, leave } = useRoom();
   const navigate = useNavigate();
   const { roomId } = useParams("/room/:roomId");
   const [searchParams] = useSearchParams();
@@ -69,7 +69,7 @@ export default function RoomScreen() {
           "강제 퇴장 당하셨습니다.",
           () => {
             navigate("/");
-            leaveRoom();
+            leave();
           }
         );
       } else if (code < 4000) {
@@ -81,12 +81,12 @@ export default function RoomScreen() {
           },
           () => {
             navigate("/");
-            leaveRoom();
+            leave();
           }
         );
       }
     },
-    [navigate]
+    [navigate, leave]
   );
 
   const joinRoomAsync = useCallback(async () => {
@@ -94,7 +94,7 @@ export default function RoomScreen() {
     if (reconnectToken) {
       try {
         const room = await Server.reconnectRoom(reconnectToken);
-        enterRoom(room);
+        enter(room);
         room.onLeave(onDisconnected);
         return;
       } catch (reason) {
@@ -107,7 +107,7 @@ export default function RoomScreen() {
         nickname: Storage.getNickname(),
         password: searchParams.get("p")?.replace(/ /g, "+") || undefined,
       });
-      enterRoom(room);
+      enter(room);
       room.onLeave(onDisconnected);
     } catch (reason) {
       const error = reason as Error;
@@ -129,7 +129,7 @@ export default function RoomScreen() {
         );
       }
     }
-  }, [roomId, navigate, searchParams, onDisconnected]);
+  }, [roomId, navigate, searchParams, onDisconnected, enter]);
 
   useEffect(() => {
     if (!room || !room.connection.isOpen) {
@@ -152,7 +152,7 @@ export default function RoomScreen() {
 }
 
 function Room() {
-  const { room } = useRoom();
+  const { room, leave } = useRoom();
   const { count, addCount, open, close } = useChatWindow();
   const [init, setInit] = useState(false);
   const [state, setState] = useState<GameRoomState | null>(null);
@@ -377,7 +377,9 @@ function Room() {
           <Text variant="h5">
             직업 목록:{" "}
             {countFreq([...state.roles.values()])
-              .map(([name, count]) => (count > 1 ? `${name} ${count} 명` : name))
+              .map(([name, count]) =>
+                count > 1 ? `${name} ${count} 명` : name
+              )
               .join(", ")}
           </Text>
         )}
@@ -557,19 +559,23 @@ function Room() {
 
         <Box display="flex" justifyContent="space-between">
           <Text variant="h5">플레이어 목록 ({state.players.size} / 10)</Text>
-          {state.gameState == GameState.Wait && (
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => {
-                room.leave();
-                navigate("/");
-                leaveRoom();
-              }}
-            >
-              나가기
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              Popup.openYesNoDialog(
+                DialogTitle.Info,
+                "게임에서 나가시겠습니까?",
+                () => {
+                  room.leave();
+                  navigate("/");
+                  leave();
+                }
+              );
+            }}
+          >
+            나가기
+          </Button>
         </Box>
         <Stack spacing={1}>
           {players
@@ -593,19 +599,28 @@ function Room() {
                       <CrownIcon style={{ width: "1.5em", height: "1.5em" }} />
                     )}
                 </Box>
-                {me.isMaster && player.id != me.id && player.isConnected && (
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      const request: KickPlayerRequest = {
-                        id: player.id,
-                      };
-                      room.send(GameEvent.KickPlayerRequest, request);
-                    }}
-                  >
-                    강퇴
-                  </Button>
-                )}
+                {me.isMaster &&
+                  player.id != me.id &&
+                  player.isConnected &&
+                  state.gameState != GameState.Wait && (
+                    <Button
+                      color="error"
+                      onClick={() => {
+                        Popup.openYesNoDialog(
+                          DialogTitle.Info,
+                          "정말 강퇴하시겠습니까?",
+                          () => {
+                            const request: KickPlayerRequest = {
+                              id: player.id,
+                            };
+                            room.send(GameEvent.KickPlayerRequest, request);
+                          }
+                        );
+                      }}
+                    >
+                      강퇴
+                    </Button>
+                  )}
               </Box>
             ))}
         </Stack>

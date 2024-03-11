@@ -11,9 +11,11 @@ import { RoomMetadata } from "@/lib/types";
 import DialogTitle from "@/constants/DialogTitle";
 import { changeNickname, useNickname } from "@/hooks/useNickname";
 import { hashPassword } from "@/utils/Crypto";
+import { useRoom } from "@/hooks/useRoom";
 
 export default function MainScreen() {
   const [rooms, setRooms] = useState<RoomAvailable<RoomMetadata>[]>([]);
+  const { room, leave } = useRoom();
   const { nickname } = useNickname();
   const navigate = useNavigate();
 
@@ -31,7 +33,10 @@ export default function MainScreen() {
 
   useEffect(() => {
     refresh();
-  }, []);
+    if (room) {
+      leave();
+    }
+  }, [room, leave]);
 
   return (
     <Container
