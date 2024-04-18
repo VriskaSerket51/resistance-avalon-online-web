@@ -23,7 +23,7 @@ import { Chat as ChatIcon, Share as ShareIcon } from "@mui/icons-material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Popup from "@/components/popup";
-import { useRoom } from "@/hooks/useRoom";
+import { enterRoom, leaveRoom, useRoom } from "@/hooks/useRoom";
 import { useNavigate, useParams } from "@/router";
 import * as Server from "@/utils/Server";
 import * as Storage from "@/utils/Storage";
@@ -56,7 +56,7 @@ import { addChat, useChatWindow } from "@/hooks/useChatWindow";
 import { countFreq } from "@/utils";
 
 export default function RoomScreen() {
-  const { room, enter, leave } = useRoom();
+  const { room } = useRoom();
   const navigate = useNavigate();
   const { roomId } = useParams("/room/:roomId");
   const [searchParams] = useSearchParams();
@@ -69,7 +69,7 @@ export default function RoomScreen() {
           "강제 퇴장 당하셨습니다.",
           () => {
             navigate("/");
-            leave();
+            leaveRoom();
           }
         );
       } else if (code < 4000) {
@@ -81,12 +81,12 @@ export default function RoomScreen() {
           },
           () => {
             navigate("/");
-            leave();
+            leaveRoom();
           }
         );
       }
     },
-    [navigate, leave]
+    [navigate]
   );
 
   const joinRoomAsync = useCallback(async () => {
@@ -94,7 +94,7 @@ export default function RoomScreen() {
     if (reconnectToken) {
       try {
         const room = await Server.reconnectRoom(reconnectToken);
-        enter(room);
+        enterRoom(room);
         room.onLeave(onDisconnected);
         return;
       } catch (reason) {
@@ -107,7 +107,7 @@ export default function RoomScreen() {
         nickname: Storage.getNickname(),
         password: searchParams.get("p")?.replace(/ /g, "+") || undefined,
       });
-      enter(room);
+      enterRoom(room);
       room.onLeave(onDisconnected);
     } catch (reason) {
       const error = reason as Error;
@@ -129,7 +129,7 @@ export default function RoomScreen() {
         );
       }
     }
-  }, [roomId, navigate, searchParams, onDisconnected, enter]);
+  }, [roomId, navigate, searchParams, onDisconnected]);
 
   useEffect(() => {
     if (!room || !room.connection.isOpen) {
@@ -152,7 +152,7 @@ export default function RoomScreen() {
 }
 
 function Room() {
-  const { room, leave } = useRoom();
+  const { room } = useRoom();
   const { count, addCount, open, close } = useChatWindow();
   const [init, setInit] = useState(false);
   const [state, setState] = useState<GameRoomState | null>(null);
@@ -569,7 +569,7 @@ function Room() {
                 () => {
                   room.leave();
                   navigate("/");
-                  leave();
+                  leaveRoom();
                 }
               );
             }}
